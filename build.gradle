@@ -24,8 +24,8 @@ tasks.withType(JavaCompile) {
 }
 
 application {
-    mainModule = 'umons.ac.be.liadventures'
-    mainClass = 'umons.ac.be.liadventures.HelloApplication'
+    mainModule = 'umons.ac.be.liadventures.application'
+    mainClass = 'umons.ac.be.liadventures.application.Application'
 }
 
 javafx {

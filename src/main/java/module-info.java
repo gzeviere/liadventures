@@ -3,6 +3,8 @@ module umons.ac.be.liadventures {
     requires javafx.fxml;
 
 
-    opens umons.ac.be.liadventures to javafx.fxml;
-    exports umons.ac.be.liadventures;
+    exports umons.ac.be.liadventures.application;
+    opens umons.ac.be.liadventures.application to javafx.fxml;
+    exports umons.ac.be.liadventures.view;
+    opens umons.ac.be.liadventures.view to javafx.fxml;
 }
