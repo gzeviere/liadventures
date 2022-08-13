@@ -2,10 +2,8 @@ package umons.ac.be.liadventures.view;
 
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 
-public class MuteButton extends Button {
+public class MuteButton extends MyButton {
     public MuteButton(){
         super("");
         setPrefWidth(40);

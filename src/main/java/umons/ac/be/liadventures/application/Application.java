@@ -1,19 +1,20 @@
 package umons.ac.be.liadventures.application;
 
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import umons.ac.be.liadventures.view.Controller;
 
 import java.io.IOException;
 
 public class Application extends javafx.application.Application {
+    Stage window;
+
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage primaryStage) throws IOException {
+
         try{
             Controller controller = new Controller();
-            stage = controller.getMainStage();
-            stage.show();
+            window = controller.getWindow();
+            window.show();
 
         } catch (Exception e){
             e.printStackTrace();
