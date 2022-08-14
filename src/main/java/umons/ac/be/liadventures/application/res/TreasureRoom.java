@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class TreasureRoom extends Cell{
-    private final String pathToTexture = "src/main/resources/textures/TreasureRoom.jpg";
+    private final String pathToTexture = "file:src/main/resources/textures/sprites/chest.png";
 
     protected final int totalElements;
     protected final ArrayList<Element> elements;
@@ -17,6 +17,11 @@ public class TreasureRoom extends Cell{
         for(int i = 0 ; i < totalElements; i++){
             elements.add(new Element());
         }
+    }
+    public void reveal(){
+
+        this.setStyle("-fx-background-color: #ffae00; -fx-border-color: black; -fx-background-image: url(" + pathToTexture +")");
+
     }
 
     public ArrayList<Element> bestPossibleOutcome(int bagSize){
@@ -53,7 +58,7 @@ public class TreasureRoom extends Cell{
                     description = "demon soul";
                     break;
                 case 4:
-                    description = "bottled dragon fart";
+                    description = "bottled furry fart";
                     break;
                 default:
                     description = "stick of truth";

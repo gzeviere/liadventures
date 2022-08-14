@@ -3,21 +3,50 @@ package umons.ac.be.liadventures.application.res;
 import java.util.Random;
 
 //extends cell ?????
-public class Player extends Cell {
-     private final String pathToTexture = "src/main/resources/textures/Player.jpg";
+public class Player {
+     private final String pathToTexture = "src/main/resources/textures/sprites/player.png";
 
-     //can be static because only 1 player at a time
+     //made static because only 1 player at a time
      private static int ability, endurance, luck, bagCapacity;
+
+     private int posX, posY;
 
      public Player(){
           Random rand = new Random();
 
+          //dices rolls, maybe make this visible at game creation ??
           ability = 7 + rand.nextInt(6);
           endurance = 14 + rand.nextInt(11);
           luck = 7 + rand.nextInt(6);
           bagCapacity = 8 + rand.nextInt(11);
+
+          posX = 0;
+          posY = 0;
      }
 
+     public int getPosX() {
+          return posX;
+     }
+
+     public int getPosY() {
+          return posY;
+     }
+
+     public void setPosX(int posX) {
+          this.posX = posX;
+     }
+
+     public void setPosY(int posY) {
+          this.posY = posY;
+     }
+
+     /**
+      * Needs to be called when the player enters a room with a monster.
+      * Player's and monster's endurance will be updated and one will be 0, handle both scenarios.
+      *
+      * @param monster the monster the player is fighting
+      * @return always true
+      */
      public boolean fightMonster(Monster monster){
           Random rand = new Random();
 
@@ -36,7 +65,7 @@ public class Player extends Cell {
           return fightMonster(monster);
      }
 
-     public boolean trapped(int bound){
+     public boolean triggeredTrap(Trap trap){
           return true;
      }
 

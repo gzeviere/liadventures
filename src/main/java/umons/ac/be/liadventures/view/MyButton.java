@@ -10,22 +10,12 @@ import java.io.InputStream;
 
 public class MyButton extends javafx.scene.control.Button {
 
-    private final String FONT_PATH = "src/main/resources/Hack.ttf";
-
     private final String BUTTON_STYLE = "-fx-background-color: transparent; -fx-border-color: transparent; -fx-background-image : url(file:src/main/resources/textures/menus/button.png)";
     private final String BUTTON_HOVER_STYLE = "-fx-background-color: transparent; -fx-border-color: transparent; -fx-background-image : url(file:src/main/resources/textures/menus/buttonHover.png)";
 
     public MyButton(String text){
-
-        InputStream is = null;
-        try {
-            is = new FileInputStream(FONT_PATH);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
         setText(text);
-        setFont(Font.loadFont(is, 15));
+        setFont(Font.font(20));
         setPrefWidth(200);
         setPrefHeight(50);
         setStyle(BUTTON_STYLE);
@@ -43,8 +33,7 @@ public class MyButton extends javafx.scene.control.Button {
         public MovementButton(String text) {
             super(text);
             this.setPrefHeight(50);
-            this.setPrefWidth(60);
-            this.setFont(Font.font(25));
+            this.setPrefWidth(50);
             this.setStyle(SMALL_BUTTON_STYLE);
             this.initializeButtonListeners();
         }

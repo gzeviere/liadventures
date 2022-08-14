@@ -3,6 +3,7 @@ package umons.ac.be.liadventures.utils;
 import javafx.scene.image.Image;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class ImageGetter {
@@ -13,7 +14,7 @@ public class ImageGetter {
         InputStream is = null;
         try {
             is = new FileInputStream(path);
-        } catch (Exception e){
+        } catch (FileNotFoundException e){
             e.printStackTrace();
         }
         return new Image(is);

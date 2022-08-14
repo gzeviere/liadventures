@@ -12,7 +12,7 @@ public class Application extends javafx.application.Application {
     public void start(Stage primaryStage) throws IOException {
 
         try{
-            Controller controller = new Controller();
+            Controller controller = Controller.getInstance();
             window = controller.getWindow();
             window.show();
 
