@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.stage.Stage;
 import umons.ac.be.liadventures.view.Controller;
 
 import java.io.FileInputStream;
@@ -17,6 +18,10 @@ public class Dungeon {
     public Cell[][] data;
     private final TreasureRoom treasureRoom;
     private final GridPane gamePane;
+    private Pane lootingPane;
+    private final Stage window;
+
+    Controller controller;
 
     //player in the dungeon
     private final Player lia;
@@ -28,6 +33,9 @@ public class Dungeon {
         lia = new Player();
 
         treasureRoom = new TreasureRoom();
+
+        controller = Controller.getInstance();
+        window = controller.getWindow();
 
         fill(dif);
     }
@@ -84,36 +92,43 @@ public class Dungeon {
             lia.setPosX(x);
             lia.setPosY(y);
 
-            data[lia.getPosX()][lia.getPosY()].setStyle("-fx-background-color:white;-fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
+            switch(data[x][y].getClass().getSimpleName()){
+                case "Monster":
+                    data[x][y].setStyle("-fx-background-color:#b92626;-fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
+                    break;
+                case "Trap":
+                    data[x][y].setStyle("-fx-background-color:#733473;-fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
+                    break;
+                case "TreasureRoom":
+                    data[x][y].setStyle("-fx-background-color:#ffae00;-fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
+                    break;
+                default:
+                    data[x][y].setStyle("-fx-background-color:white;-fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
+                    break;
+            }
+
+
+            System.out.println(data[lastX][lastY]);
             data[lastX][lastY].reveal();
-            return true;
+
+            if(interactCurrentCell())
+                return true;
+
+            return false;
         }
         return false;
     }
 
     public void revealAll(){
-        FileInputStream is = null;
-        try{
-            is = new FileInputStream("src/main/resources/textures/sprites/player.png");
-
-        }catch(FileNotFoundException e ){
-            //no pb
-        }
-
         for(int i = 0; i < data.length; i++){
             for(int j = 0; j < data[0].length; j++){
                 data[i][j].reveal();
             }
         }
-
     }
 
     public void startGame(){
         data[0][0].setStyle(" -fx-background-color : white; -fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
-
-        if(exploration()){
-            looting();
-        }
     }
 
     /**
@@ -122,11 +137,44 @@ public class Dungeon {
      * @return true if the player reached the treasure room, false if the player's endurance reached 0.
      */
     private boolean exploration(){
-        Controller controller = Controller.getInstance();
+
         return false;
     }
 
     private void looting(){
+        lootingPane = new Pane();
+
+        treasureRoom.looting();
+       controller.createLootingScene();
+    }
+
+    /**
+     *
+     * @return true if the player endurance is > 0
+     */
+    private boolean interactCurrentCell(){
+        int liaposx = lia.getPosX();
+        int liaposy = lia.getPosY();
+
+        switch(data[liaposx][liaposy].getClass().getSimpleName()){
+            case "Monster":
+                lia.fightMonster((Monster) data[liaposx][liaposy]);
+                if(lia.getEndurance() < 1)
+                    return false;
+
+                //TODO fix this
+                break;
+            case "Trap":
+                lia.triggeredTrap();
+                if(lia.getEndurance() < 1)
+                    return false;
+                break;
+            case "TreasureRoom":
+                looting();
+                break;
+        }
+        System.out.println(lia.getEndurance());
+        return true;
 
     }
 
@@ -159,12 +207,16 @@ public class Dungeon {
         Cell randCell;
 
         if(randInt < dif.emptyRate)
-            randCell= new Cell();
+            randCell = new Cell();
         else if (randInt < dif.emptyRate + dif.trapRate)
             randCell = new Trap();
         else
             randCell = new Monster();
 
         return randCell;
+    }
+
+    public TreasureRoom getTreasureRoom() {
+        return treasureRoom;
     }
 }

@@ -13,11 +13,11 @@ public class Cell extends Pane {
     public Cell(){}
 
     public void reveal(){
+        System.out.println("coucou");
 
         this.setStyle("-fx-background-color: #ffffff; -fx-border-color: black;");
 
-    } //reveals true texture instead of blank grey default hidden texture
-
+    }
     @Override
     public String toString() {
         return getClass().getSimpleName();

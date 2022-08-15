@@ -13,6 +13,8 @@ public class Monster extends Cell {
         this.ability = 2 + rand.nextInt(11); //2 < ability < 12
         this.endurance = 2 + rand.nextInt(11); //2 < endurance < 12
     }
+
+    @Override
     public void reveal(){
 
         this.setStyle("-fx-background-color: #b92626; -fx-border-color: black; -fx-background-image: url(" + pathToTexture + ");");

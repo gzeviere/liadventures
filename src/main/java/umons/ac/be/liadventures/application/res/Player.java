@@ -1,5 +1,7 @@
 package umons.ac.be.liadventures.application.res;
 
+import javafx.scene.control.Button;
+
 import java.util.Random;
 
 //extends cell ?????
@@ -7,7 +9,7 @@ public class Player {
      private final String pathToTexture = "src/main/resources/textures/sprites/player.png";
 
      //made static because only 1 player at a time
-     private static int ability, endurance, luck, bagCapacity;
+     private int ability, endurance, luck, bagCapacity;
 
      private int posX, posY;
 
@@ -48,6 +50,8 @@ public class Player {
       * @return always true
       */
      public boolean fightMonster(Monster monster){
+          if(monster.getEndurance() < 1)
+               return true;
           Random rand = new Random();
 
           //jeter 2 dés pour lia et le monstre
@@ -55,37 +59,44 @@ public class Player {
           int monsterCombatScore = monster.getAbility() + 2 + rand.nextInt(11);
 
           if(liaCombatScore < monsterCombatScore)
-               setAbility(ability - 2);
+               setEndurance(endurance - 2);
           else if (monsterCombatScore < liaCombatScore)
-               monster.setAbility(monster.getAbility() - 2);
+               monster.setEndurance(monster.getEndurance() - 2);
 
-          if(monster.getAbility() <= 0 || ability <= 0) //if someone dead return true
+          if(monster.getEndurance() <= 0 || endurance <= 0) //if someone dead return true
                return true;
 
           return fightMonster(monster);
      }
 
-     public boolean triggeredTrap(Trap trap){
-          return true;
+     public void triggeredTrap(){
+          Random rand = new Random();
+          int trapLuck = 2 + rand.nextInt(11);
+
+          if(trapLuck <= getLuck()){
+               this.luck--;
+               return;
+          }
+          endurance = endurance-2;
      }
 
-     public static int getEndurance() {
+     public int getEndurance() {
           return endurance;
      }
 
-     public static int getAbility() {
+     public int getAbility() {
           return ability;
      }
 
-     public static int getBagCapacity() {
+     public int getBagCapacity() {
           return bagCapacity;
      }
 
-     public static int getLuck() {
+     public int getLuck() {
           return luck;
      }
 
-     public static void setAbility(int ability) {
-          Player.ability = ability;
+     public void setEndurance(int endurance) {
+          this.endurance = endurance;
      }
 }

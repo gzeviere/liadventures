@@ -18,6 +18,7 @@ public class TreasureRoom extends Cell{
             elements.add(new Element());
         }
     }
+    @Override
     public void reveal(){
 
         this.setStyle("-fx-background-color: #ffae00; -fx-border-color: black; -fx-background-image: url(" + pathToTexture +")");
@@ -30,6 +31,15 @@ public class TreasureRoom extends Cell{
         //trier les elements par ce ratio dans une liste L
         //tant qu'on a suffisamment de place pour l'élément au meilleur ratio le prendre, sinon prendre celui d'apres dans L
         return L;
+    }
+
+    public ArrayList<Element> getElements() {
+        return elements;
+    }
+
+    public void looting(){
+
+
     }
 
     public static class Element {
@@ -46,25 +56,37 @@ public class TreasureRoom extends Cell{
 
             switch (select){
                 case 0:
-                    description = "gold";
+                    description = "A gold bar";
                     break;
                 case 1:
-                    description = "jewelery";
+                    description = "A jewelery";
                     break;
                 case 2:
-                    description = "ancient artifact";
+                    description = "An ancient artifact";
                     break;
                 case 3:
-                    description = "demon soul";
+                    description = "A demon soul";
                     break;
                 case 4:
-                    description = "bottled furry fart";
+                    description = "A bottled dragon fart";
                     break;
                 default:
-                    description = "stick of truth";
+                    description = "The stick of truth";
                     break;
             }
 
+        }
+
+        public int getSizeInBag() {
+            return sizeInBag;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public String getDescription() {
+            return description;
         }
     }
 }

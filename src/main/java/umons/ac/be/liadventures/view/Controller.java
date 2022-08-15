@@ -10,14 +10,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import umons.ac.be.liadventures.application.res.Difficulty;
-import umons.ac.be.liadventures.application.res.Direction;
-import umons.ac.be.liadventures.application.res.Dungeon;
-import umons.ac.be.liadventures.application.res.Player;
+import umons.ac.be.liadventures.application.res.*;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.concurrent.Flow;
 
 public class Controller {
     private static Controller singletonController;
@@ -30,16 +28,19 @@ public class Controller {
 
     //layouts
     private AnchorPane menuLayout;
-    private AnchorPane pauseMenuLayout;
     private GridPane gameLayout;
     private AnchorPane optionsLayout;
 
     //scenes
-    private Scene mainMenu, gameScene, gameSetupScene, lootingScene, optionsScene, pauseMenu;
+    private Scene mainMenu, gameScene, gameSetupScene, pauseMenu, optionsScene;
 
     private final ToggleGroup group = new ToggleGroup();
     private Background gameBackground;
     Background labelBackground;
+
+    //labels
+    private Label ability, endurance, luck, bagCapacity;
+    private GridPane movementButtons;
 
     //temp
     private Dungeon dungeon;
@@ -57,7 +58,7 @@ public class Controller {
         window = new Stage();
 
         //modify if enough time
-        window.setResizable(true);
+        window.setResizable(false);
 
         window.setTitle("Liadventures");
         try {
@@ -117,7 +118,7 @@ public class Controller {
     }
 
     private void createPauseMenuScene() {
-        pauseMenuLayout = new AnchorPane();
+        AnchorPane pauseMenuLayout = new AnchorPane();
 
         //buttons
         MyButton resumeButton = new MyButton("Resume");
@@ -227,21 +228,19 @@ public class Controller {
         //statistics
         labelBackground = new Background(new BackgroundFill(Color.rgb(190, 190, 190, 0.95), CornerRadii.EMPTY, Insets.EMPTY));
 
-
-        //TODO make Player non static !!!!!!!
-        Label ability = new Label("Ability : " + Player.getAbility());
+        ability = new Label("Ability : " + lia.getAbility());
         ability.setPadding(new Insets(5));
         ability.setBackground(labelBackground);
 
-        Label endurance = new Label("Endurance : " + Player.getEndurance());
+        endurance = new Label("Endurance : " + lia.getEndurance());
         endurance.setPadding(new Insets(5));
         endurance.setBackground(labelBackground);
 
-        Label luck = new Label("Luck : " + Player.getLuck());
+        luck = new Label("Luck : " + lia.getLuck());
         luck.setPadding(new Insets(5));
         luck.setBackground(labelBackground);
 
-        Label bagCapacity = new Label("Bag capacity : " + Player.getBagCapacity());
+        bagCapacity = new Label("Bag capacity : " + lia.getBagCapacity());
         bagCapacity.setPadding(new Insets(5));
         bagCapacity.setBackground(labelBackground);
 
@@ -257,7 +256,7 @@ public class Controller {
         MyButton.MovementButton downButton = new MyButton.MovementButton("↓");
         MyButton.MovementButton rightButton = new MyButton.MovementButton("→");
 
-        GridPane movementButtons = new GridPane();
+        movementButtons = new GridPane();
         movementButtons.setPadding(new Insets(2));
         movementButtons.setHgap(2);
         movementButtons.setVgap(2);
@@ -270,6 +269,7 @@ public class Controller {
 
         //text area
         TextArea textArea = new TextArea();
+        textArea.setEditable(false);
         gameLayout.add(textArea, 1, 2);
 
         //game grid pane
@@ -278,6 +278,11 @@ public class Controller {
 
         gameLayout.add(gamePane, 1, 0);
         gameLayout.setBackground(gameBackground);
+
+        upButton.setOnAction(event -> dungeon.move(Direction.UP));
+        leftButton.setOnAction(event -> dungeon.move(Direction.LEFT));
+        downButton.setOnAction(event -> dungeon.move(Direction.DOWN));
+        rightButton.setOnAction(event -> dungeon.move(Direction.RIGHT));
 
         gameScene = new Scene(gameLayout, WIDTH, HEIGHT);
 
@@ -290,31 +295,62 @@ public class Controller {
                     dungeon.revealAll();
                     break;
                 case Z:
-                    System.out.println("z");
-                    if(dungeon.move(Direction.UP)){
-
-                    }
+                    dungeon.move(Direction.UP);
                     break;
                 case Q:
-                    System.out.println("q");
-                    if(dungeon.move(Direction.LEFT)){
-
-                    }
+                    dungeon.move(Direction.LEFT);
                     break;
                 case S:
-                    if(dungeon.move(Direction.DOWN)){
-
-                    }
+                    dungeon.move(Direction.DOWN);
                     break;
                 case D:
-                    if(dungeon.move(Direction.RIGHT)){
-
-                    }
+                    dungeon.move(Direction.RIGHT);
                     break;
             }
+            updateLabels();
 
         });
         dungeon.startGame();
+    }
+
+    private void updateLabels(){
+        ability.setText("Ability : " + lia.getAbility());
+        endurance.setText("Endurance : " + lia.getEndurance());
+        luck.setText("Luck : " + lia.getLuck());
+        bagCapacity.setText("Bag capacity : " + lia.getBagCapacity());
+
+    }
+
+    public void createLootingScene(){
+        gameLayout.getChildren().remove(movementButtons);
+        gameLayout.getChildren().remove(dungeon.getGamePane());
+
+        MyButton leaveButton = new MyButton("LEAVE");
+
+        gameLayout.add(leaveButton, 0, 2);
+
+        FlowPane lootingPane = new FlowPane();
+        CheckBox temp;
+
+        for(TreasureRoom.Element El : dungeon.getTreasureRoom().getElements()){
+            temp = new CheckBox();
+            temp.setText(El.getDescription() + " is worth " + El.getValue() + " crowns. It weights " + El.getSizeInBag() + " ounces");
+            lootingPane.getChildren().add(temp);
+        }
+
+        lootingPane.setBackground(labelBackground);
+
+        gameLayout.add(lootingPane,1,0);
+
+        leaveButton.setOnAction(event -> {
+            if(calculateOutcome(lootingPane))
+                return;
+        });
+    }
+
+    private boolean calculateOutcome(FlowPane pane){
+        //for(TreasureRoom.Element Node : pane)
+        return true;
     }
 
     private void setBackground() {

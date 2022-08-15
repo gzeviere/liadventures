@@ -6,14 +6,13 @@ import umons.ac.be.liadventures.view.Controller;
 import java.io.IOException;
 
 public class Application extends javafx.application.Application {
-    Stage window;
 
     @Override
     public void start(Stage primaryStage) throws IOException {
 
         try{
             Controller controller = Controller.getInstance();
-            window = controller.getWindow();
+            Stage window = controller.getWindow();
             window.show();
 
         } catch (Exception e){
