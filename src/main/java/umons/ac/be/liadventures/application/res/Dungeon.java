@@ -1,16 +1,10 @@
 package umons.ac.be.liadventures.application.res;
 
-import javafx.scene.effect.Bloom;
-import javafx.scene.image.Image;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import umons.ac.be.liadventures.view.Controller;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.HashMap;
 import java.util.Random;
 
 public class Dungeon {
@@ -42,12 +36,6 @@ public class Dungeon {
 
     public Player getLia() {
         return lia;
-    }
-
-    //dungeon's size is n x n.
-    public int getSize(){
-        //return new int[]{data.length(), data[0].length()};
-        return data.length;
     }
 
     public GridPane getGamePane() {
@@ -92,31 +80,38 @@ public class Dungeon {
             lia.setPosX(x);
             lia.setPosY(y);
 
-            switch(data[x][y].getClass().getSimpleName()){
-                case "Monster":
-                    data[x][y].setStyle("-fx-background-color:#b92626;-fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
-                    break;
-                case "Trap":
-                    data[x][y].setStyle("-fx-background-color:#733473;-fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
-                    break;
-                case "TreasureRoom":
-                    data[x][y].setStyle("-fx-background-color:#ffae00;-fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
-                    break;
-                default:
-                    data[x][y].setStyle("-fx-background-color:white;-fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
-                    break;
-            }
+            setPlayerTexture(x, y);
 
-
-            System.out.println(data[lastX][lastY]);
             data[lastX][lastY].reveal();
 
-            if(interactCurrentCell())
-                return true;
+            if(! interactCurrentCell())
+                playerDied();
 
             return false;
         }
         return false;
+    }
+
+    private void setPlayerTexture(int x, int y) {
+        switch(data[x][y].getClass().getSimpleName()){
+            case "Monster":
+                data[x][y].setStyle("-fx-background-color:#b92626;-fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
+                break;
+            case "Trap":
+                data[x][y].setStyle("-fx-background-color:#733473;-fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
+                break;
+            case "TreasureRoom":
+                data[x][y].setStyle("-fx-background-color:#ffae00;-fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
+                break;
+            default:
+                data[x][y].setStyle("-fx-background-color:white;-fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
+                break;
+        }
+    }
+
+    public void playerDied(){
+        controller.gameOver();
+        //controller.createEndScene("Game Over !");
     }
 
     public void revealAll(){
@@ -125,6 +120,9 @@ public class Dungeon {
                 data[i][j].reveal();
             }
         }
+        int x = lia.getPosX();
+        int y = lia.getPosY();
+        setPlayerTexture(x, y);
     }
 
     public void startGame(){
@@ -141,39 +139,46 @@ public class Dungeon {
         return false;
     }
 
-    private void looting(){
+    public void looting(){
+        controller.newLog("You entered the treasure room ! You could profit at least " + treasureRoom.bestPossibleOutcome(lia.getBagCapacity()));
         lootingPane = new Pane();
 
-        treasureRoom.looting();
-       controller.createLootingScene();
+        controller.createLootingScene();
     }
 
     /**
      *
-     * @return true if the player endurance is > 0
+     * @return false if the player endurance is > 0 (end of the game)
      */
     private boolean interactCurrentCell(){
-        int liaposx = lia.getPosX();
-        int liaposy = lia.getPosY();
+        int liaPosX = lia.getPosX();
+        int liaPosY = lia.getPosY();
 
-        switch(data[liaposx][liaposy].getClass().getSimpleName()){
+        switch(data[liaPosX][liaPosY].getClass().getSimpleName()){
             case "Monster":
-                lia.fightMonster((Monster) data[liaposx][liaposy]);
-                if(lia.getEndurance() < 1)
+                int enduranceBeforeFight = lia.getEndurance();
+                lia.fightMonster((Monster) data[liaPosX][liaPosY]);
+                if(lia.getEndurance() < 1) {
+                    controller.newLog("The monster defeated you ... With " + ((Monster) data[liaPosX][liaPosY]).getEndurance() + " endurance left");
                     return false;
+                }
+                controller.newLog("You defeated a monster and lost " + (enduranceBeforeFight-lia.getEndurance()) + " Endurance");
 
-                //TODO fix this
                 break;
             case "Trap":
-                lia.triggeredTrap();
-                if(lia.getEndurance() < 1)
-                    return false;
+                if(!lia.triggeredTrap()) {
+                    if (lia.getEndurance() < 1) {
+                        controller.newLog("Game Over ! You fell into a trap and succumbed to it");
+                        return false;
+                    }
+                    controller.newLog("Ouch ! You fell into a trap and lost 2 endurance");
+                }
+                controller.newLog("Woosh ! You saw a trap before it triggered and avoided it ! You lose 1 luck");
                 break;
             case "TreasureRoom":
                 looting();
                 break;
         }
-        System.out.println(lia.getEndurance());
         return true;
 
     }

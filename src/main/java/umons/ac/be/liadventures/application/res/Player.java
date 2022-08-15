@@ -69,15 +69,21 @@ public class Player {
           return fightMonster(monster);
      }
 
-     public void triggeredTrap(){
+     /**
+      *
+      * @return true if the player avoids the trap (and lose 1 luck),
+      * false if the player falls in the trap (and lose 2 endurance)
+      */
+     public boolean triggeredTrap(){
           Random rand = new Random();
           int trapLuck = 2 + rand.nextInt(11);
 
           if(trapLuck <= getLuck()){
                this.luck--;
-               return;
+               return true;
           }
           endurance = endurance-2;
+          return false;
      }
 
      public int getEndurance() {

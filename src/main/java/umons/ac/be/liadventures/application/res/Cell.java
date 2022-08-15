@@ -13,10 +13,7 @@ public class Cell extends Pane {
     public Cell(){}
 
     public void reveal(){
-        System.out.println("coucou");
-
         this.setStyle("-fx-background-color: #ffffff; -fx-border-color: black;");
-
     }
     @Override
     public String toString() {

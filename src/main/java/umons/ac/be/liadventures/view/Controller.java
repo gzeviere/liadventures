@@ -2,6 +2,7 @@ package umons.ac.be.liadventures.view;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -9,13 +10,12 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import javafx.scene.Scene;
 import umons.ac.be.liadventures.application.res.*;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.Flow;
 
 public class Controller {
     private static Controller singletonController;
@@ -30,6 +30,7 @@ public class Controller {
     private AnchorPane menuLayout;
     private GridPane gameLayout;
     private AnchorPane optionsLayout;
+    private GridPane gamePane;
 
     //scenes
     private Scene mainMenu, gameScene, gameSetupScene, pauseMenu, optionsScene;
@@ -41,6 +42,7 @@ public class Controller {
     //labels
     private Label ability, endurance, luck, bagCapacity;
     private GridPane movementButtons;
+    private TextArea logsArea;
 
     //temp
     private Dungeon dungeon;
@@ -75,12 +77,12 @@ public class Controller {
         window.setScene(mainMenu);
     }
 
-    public Stage getWindow() {
-        return window;
+    public TextArea getLogsArea() {
+        return logsArea;
     }
 
-    public Scene getCurrentScene() {
-        return window.getScene();
+    public Stage getWindow() {
+        return window;
     }
 
     private void setupKeyListeners() {
@@ -108,7 +110,13 @@ public class Controller {
             createGameSetupScene();
             window.setScene(gameSetupScene);
         });
-        //lootingButton.setOnAction(event -> );
+        lootingButton.setOnAction(event -> {
+            lia = new Player();
+            dungeon = new Dungeon(4, Difficulty.NORMAL);
+            createGameScene();
+            dungeon.looting();
+            window.setScene(gameScene);
+        });
         //optionsButton.setOnAction(event -> );
         exitButton.setOnAction(event -> window.close());
 
@@ -268,13 +276,15 @@ public class Controller {
         gameLayout.add(movementButtons, 0, 2);
 
         //text area
-        TextArea textArea = new TextArea();
-        textArea.setEditable(false);
-        gameLayout.add(textArea, 1, 2);
+        logsArea = new TextArea();
+        logsArea.setEditable(false);
+        logsArea.setText("You entered the dungeon.\n");
+
+        gameLayout.add(logsArea, 1, 2);
 
         //game grid pane
         dungeon.fillPane();
-        GridPane gamePane = dungeon.getGamePane(); //no padding, no hgap/vgap
+        gamePane = dungeon.getGamePane(); //no padding, no hgap/vgap
 
         gameLayout.add(gamePane, 1, 0);
         gameLayout.setBackground(gameBackground);
@@ -287,12 +297,15 @@ public class Controller {
         gameScene = new Scene(gameLayout, WIDTH, HEIGHT);
 
         gameScene.setOnKeyPressed(event -> {
+            //KeyCode.Z
+            //KeyCode.ESCAPE
             switch (event.getCode()){
                 case ESCAPE :
                     window.setScene(pauseMenu);
                     break;
                 case P:
                     dungeon.revealAll();
+                    newLog("The whole dungeon suddenly revealed itself !");
                     break;
                 case Z:
                     dungeon.move(Direction.UP);
@@ -313,6 +326,85 @@ public class Controller {
         dungeon.startGame();
     }
 
+    public void createEndScene(){
+        AnchorPane endLayout = new AnchorPane();
+
+        //buttons
+        MyButton exitButton = new MyButton("Exit to main menu");
+        MyButton quitApp = new MyButton("Exit to desktop");
+        Label endLabel = new Label("You escaped !");
+        endLabel.setBackground(labelBackground);
+        endLabel.setFont(Font.font(25));
+
+        VBox buttonBox = new VBox(5);
+
+        buttonBox.setLayoutX(WIDTH / 2.0 - 100);
+        buttonBox.setLayoutY(100);
+
+        buttonBox.getChildren().addAll(endLabel, logsArea, exitButton, quitApp);
+        endLayout.getChildren().add(buttonBox);
+
+        exitButton.setOnAction(event -> window.setScene(mainMenu));
+        quitApp.setOnAction(event -> window.close());
+
+        Scene endScene = new Scene(endLayout, WIDTH, HEIGHT);
+
+        endScene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE)
+                window.setScene(mainMenu);
+        });
+
+
+        endLayout.setBackground(gameBackground);
+
+        window.setScene(endScene);
+    }
+
+    public void gameOver(){
+        GridPane endLayout = new GridPane();
+
+        endLayout.setPadding(new Insets(10));
+        endLayout.setHgap(10);
+
+
+        //buttons
+        MyButton exitButton = new MyButton("Exit to main menu");
+        MyButton quitApp = new MyButton("Exit to desktop");
+        Label endLabel = new Label("Game Over");
+        endLabel.setBackground(labelBackground);
+        endLabel.setFont(Font.font(25));
+
+        VBox buttonBox = new VBox(5);
+
+        buttonBox.setLayoutX(WIDTH / 2.0 - 100);
+        buttonBox.setLayoutY(100);
+
+        buttonBox.getChildren().addAll(endLabel, logsArea, exitButton, quitApp);
+        endLayout.add(buttonBox, 0, 0);
+        endLayout.add(gamePane,1 ,0);
+
+        dungeon.revealAll();
+
+        exitButton.setOnAction(event -> window.setScene(mainMenu));
+        quitApp.setOnAction(event -> window.close());
+
+        Scene endScene = new Scene(endLayout, WIDTH, HEIGHT);
+
+        endScene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE)
+                window.setScene(mainMenu);
+        });
+
+
+        endLayout.setBackground(gameBackground);
+
+        window.setScene(endScene);
+    }
+
+    public void newLog(String log){
+        logsArea.setText(logsArea.getText() + log + "\n");
+    }
+
     private void updateLabels(){
         ability.setText("Ability : " + lia.getAbility());
         endurance.setText("Endurance : " + lia.getEndurance());
@@ -325,7 +417,7 @@ public class Controller {
         gameLayout.getChildren().remove(movementButtons);
         gameLayout.getChildren().remove(dungeon.getGamePane());
 
-        MyButton leaveButton = new MyButton("LEAVE");
+        MyButton leaveButton = new MyButton("Leave");
 
         gameLayout.add(leaveButton, 0, 2);
 
@@ -334,6 +426,7 @@ public class Controller {
 
         for(TreasureRoom.Element El : dungeon.getTreasureRoom().getElements()){
             temp = new CheckBox();
+            temp.setUserData(El);
             temp.setText(El.getDescription() + " is worth " + El.getValue() + " crowns. It weights " + El.getSizeInBag() + " ounces");
             lootingPane.getChildren().add(temp);
         }
@@ -343,14 +436,38 @@ public class Controller {
         gameLayout.add(lootingPane,1,0);
 
         leaveButton.setOnAction(event -> {
-            if(calculateOutcome(lootingPane))
-                return;
+            int[] results;
+            try{
+                results = calculateOutcome(lootingPane);
+                System.out.println("tot val : " + results[0] + "  ||  tot weight : " + results[1]);
+                createEndScene();
+            }catch (IOException e){
+                newLog(e.getMessage());
+            }
         });
     }
 
-    private boolean calculateOutcome(FlowPane pane){
-        //for(TreasureRoom.Element Node : pane)
-        return true;
+    /**Function used to determinate what is the total value and weight of the selected treasures in the treasure room.
+     *
+     * @param pane the pane where the checkboxes are instanced.
+     * @return two integers in a list. The first integer is the total value of the looting and the second is the total weight.
+     * @throws IOException when the total size of collected elements is bigger than the player's bag capacity.
+     */
+    private int[] calculateOutcome(FlowPane pane) throws IOException {
+        CheckBox temp;
+        int totalValue = 0;
+        int totalWeight = 0;
+        for(int i = 0; i < pane.getChildren().size(); i++){
+            temp = (CheckBox) pane.getChildren().get(i);
+            if(temp.isSelected()){
+                TreasureRoom.Element el = (TreasureRoom.Element)temp.getUserData();
+                totalValue += el.getValue();
+                totalWeight += el.getSizeInBag();
+            }
+        }
+        if(totalWeight <= lia.getBagCapacity())
+            return new int[]{totalValue, totalWeight};
+        throw new IOException("Bag too small, select fewer items");
     }
 
     private void setBackground() {

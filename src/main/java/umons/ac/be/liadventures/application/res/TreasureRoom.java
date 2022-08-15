@@ -1,7 +1,6 @@
 package umons.ac.be.liadventures.application.res;
 
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
 
 public class TreasureRoom extends Cell{
     private final String pathToTexture = "file:src/main/resources/textures/sprites/chest.png";
@@ -18,6 +17,7 @@ public class TreasureRoom extends Cell{
             elements.add(new Element());
         }
     }
+
     @Override
     public void reveal(){
 
@@ -25,21 +25,50 @@ public class TreasureRoom extends Cell{
 
     }
 
-    public ArrayList<Element> bestPossibleOutcome(int bagSize){
-        ArrayList<Element> L = new ArrayList<>(totalElements);
+    public int bestPossibleOutcome(int bagSize){
+        int outcome = 0;
+        LinkedList<Element> order = bestElementOrder();
+
+        while(order.size() > 0){
+            Element current = order.remove();
+            if(current.getSizeInBag() < bagSize){
+                outcome += current.getValue();
+                bagSize -= current.getSizeInBag();
+            }
+            System.out.println(outcome);
+        }
+        return outcome;
+    }
+
+    public LinkedList<Element> bestElementOrder(){
         //faire un ratio de valeur par unité de poids
         //trier les elements par ce ratio dans une liste L
         //tant qu'on a suffisamment de place pour l'élément au meilleur ratio le prendre, sinon prendre celui d'apres dans L
-        return L;
+
+        LinkedList<Element> finalOrder = new LinkedList<>();
+        ArrayList<Element> elementsCopy = new ArrayList<>(elements);
+
+        while(elementsCopy.size() > 0){
+            float highestRatio = 0;
+            float ratio;
+            Element highestElement = null;
+
+            for(Element element : elementsCopy){
+                ratio = element.getValue()/element.getSizeInBag();
+                if(ratio >= highestRatio){
+                    highestRatio = ratio;
+                    highestElement = element;
+                }
+            }
+            elementsCopy.remove(highestElement);
+            finalOrder.add(highestElement);
+        }
+        System.out.println(finalOrder);
+        return finalOrder;
     }
 
     public ArrayList<Element> getElements() {
         return elements;
-    }
-
-    public void looting(){
-
-
     }
 
     public static class Element {
@@ -76,6 +105,7 @@ public class TreasureRoom extends Cell{
             }
 
         }
+
 
         public int getSizeInBag() {
             return sizeInBag;
