@@ -5,8 +5,6 @@ public class Trap extends Cell{
 
     @Override
     public void reveal(){
-
         this.setStyle("-fx-background-color: #733473; -fx-border-color: black; -fx-background-image: url("+ pathToTexture+ ");");
-
     }
 }

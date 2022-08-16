@@ -8,6 +8,9 @@ public class TreasureRoom extends Cell{
     protected final int totalElements;
     protected final ArrayList<Element> elements;
 
+    /**
+     * The constructor generates a random amount of elements to be looted.
+     */
     public TreasureRoom(){
         Random random = new Random();
         totalElements = 4 + random.nextInt(9);
@@ -20,26 +23,34 @@ public class TreasureRoom extends Cell{
 
     @Override
     public void reveal(){
-
         this.setStyle("-fx-background-color: #ffae00; -fx-border-color: black; -fx-background-image: url(" + pathToTexture +")");
-
     }
 
+    /**
+     * Calculates a good possible outcome following the bestElementOrder(); method.
+     *
+     * @param bagSize free size of the player's bag.
+     * @return value of the outcome.
+     */
     public int bestPossibleOutcome(int bagSize){
         int outcome = 0;
         LinkedList<Element> order = bestElementOrder();
 
-        while(order.size() > 0){
+        while(order.size() > 0 && bagSize > 0){
             Element current = order.remove();
             if(current.getSizeInBag() < bagSize){
                 outcome += current.getValue();
                 bagSize -= current.getSizeInBag();
             }
-            System.out.println(outcome);
         }
         return outcome;
     }
 
+    /**
+     * Establishes a pick priority list of the elements of the treasure room.
+     *
+     * @return the priority list.
+     */
     public LinkedList<Element> bestElementOrder(){
         //faire un ratio de valeur par unité de poids
         //trier les elements par ce ratio dans une liste L
@@ -63,7 +74,6 @@ public class TreasureRoom extends Cell{
             elementsCopy.remove(highestElement);
             finalOrder.add(highestElement);
         }
-        System.out.println(finalOrder);
         return finalOrder;
     }
 
@@ -71,6 +81,9 @@ public class TreasureRoom extends Cell{
         return elements;
     }
 
+    /**
+     * Inner class of treasure room. Elements each have a random value, weight (size in bag), and description
+     */
     public static class Element {
         public final int value;
         public final int sizeInBag;
@@ -100,7 +113,7 @@ public class TreasureRoom extends Cell{
                     description = "A bottled dragon fart";
                     break;
                 default:
-                    description = "The stick of truth";
+                    description = "Frankenstrat";
                     break;
             }
 

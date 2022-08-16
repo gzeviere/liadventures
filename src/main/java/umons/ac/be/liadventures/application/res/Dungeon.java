@@ -11,11 +11,18 @@ public class Dungeon {
     private final TreasureRoom treasureRoom;
     private final GridPane gamePane;
 
-    final Controller controller;
+    //the application controller (which is a singleton class)
+    private final Controller controller;
 
     //player in the dungeon
     private final Player lia;
 
+    /**
+     * Generates a new dungeon, its only treasure room and the only player that will explore it.
+     *
+     * @param size of the generated dungeon (will be size x size).
+     * @param dif the spawn rate difficulty of the traps and monsters.
+     */
     public Dungeon(int size, Difficulty dif){
         data = new Cell[size][size];
         gamePane = new GridPane();
@@ -29,7 +36,7 @@ public class Dungeon {
         fill(dif);
     }
 
-    public Player getLia() {
+    public Player getPlayer() {
         return lia;
     }
 
@@ -37,6 +44,9 @@ public class Dungeon {
         return gamePane;
     }
 
+    /**
+     * Fills the javaFX GridPane used to display the dungeon's cells with hidden grey cells.
+     */
     public void fillPane(){
         Cell cellPane;
         for(int i = 0; i < data.length; i++){
@@ -50,6 +60,10 @@ public class Dungeon {
         }
     }
 
+    /**
+     * Moves the player inside the dungeon matching the parametrized direction dir.
+     * @param dir Direction the player moves.
+     */
     public void move(Direction dir) {
         int lastX = lia.getPosX();
         int lastY = lia.getPosY();
@@ -75,17 +89,23 @@ public class Dungeon {
             lia.setPosX(x);
             lia.setPosY(y);
 
-            setPlayerTexture(x, y);
+            setPlayerTexture();
 
             data[lastX][lastY].reveal();
 
             if(! interactCurrentCell())
-                playerDied();
+                controller.gameOver();
 
         }
     }
 
-    private void setPlayerTexture(int x, int y) {
+    /**
+     * Replaces the texture of the cell the player is in with the player model/sprite. Aware of what's in the cell originally
+     *
+     */
+    public void setPlayerTexture() {
+        int x = lia.getPosX();
+        int y = lia.getPosY();
         switch(data[x][y].getClass().getSimpleName()){
             case "Monster":
                 data[x][y].setStyle("-fx-background-color:#b92626;-fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
@@ -102,34 +122,31 @@ public class Dungeon {
         }
     }
 
-    public void playerDied(){
-        controller.gameOver();
-        //controller.createEndScene("Game Over !");
-    }
-
+    /**
+     * Reveals all the cells of the dungeon.
+     */
     public void revealAll(){
         for (Cell[] datum : data) {
             for (int j = 0; j < data[0].length; j++) {
                 datum[j].reveal();
             }
         }
-        int x = lia.getPosX();
-        int y = lia.getPosY();
-        setPlayerTexture(x, y);
+        setPlayerTexture();
     }
 
-    public void startGame(){
-        data[0][0].setStyle(" -fx-background-color : white; -fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
-    }
 
+    /**
+     * Engages the looting phase of the game.
+     */
     public void looting(){
         controller.newLog("You entered the treasure room ! You could profit at least " + treasureRoom.bestPossibleOutcome(lia.getBagCapacity()));
         controller.createLootingScene();
     }
 
     /**
+     * Makes the player interact with the cell he is in. i.e. if the player is in a Monster cell, this function engages the fight with the monster.
      *
-     * @return false if the player endurance is > 0 (end of the game)
+     * @return false if the player endurance is < 0 (end of the game)
      */
     private boolean interactCurrentCell(){
         int liaPosX = lia.getPosX();
@@ -167,6 +184,11 @@ public class Dungeon {
 
     }
 
+    /**
+     * Putting traps and monsters in the dungeon matching the parametrized difficulty spawn rates. Also makes the entry an empty cell and placing randomly a treasure room.
+     *
+     * @param dif Difficulty of the dungeon
+     */
     private void fill(Difficulty dif){
 
         Random rand = new Random();
@@ -189,6 +211,12 @@ public class Dungeon {
         data[x][y] = treasureRoom;
     }
 
+    /**
+     * Function used to get a random cell type matching the parametrized difficulty.
+     *
+     * @param dif Difficulty of the dungeon.
+     * @return a randomly generated Cell.
+     */
     private Cell randomCell(Difficulty dif){
         Random rand = new Random();
         int randInt = rand.nextInt(101);

@@ -16,6 +16,12 @@ public enum Difficulty {
         this.monsterRate = monsterRate;
     }
 
+    /**
+     * Returns the Difficulty object extracted of a string.
+     *
+     * @param str the string that needs to be analyzed.
+     * @return matching difficulty.
+     */
     public static Difficulty getFromString(String str){
         switch(str){
             case "EASY":

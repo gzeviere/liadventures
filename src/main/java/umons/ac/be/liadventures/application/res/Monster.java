@@ -9,6 +9,12 @@ public class Monster extends Cell {
     private int endurance;
     public boolean isDead;
 
+
+    /**
+     * Generates a new monster and sets randoms stats for it matching the probability of dice rolls :
+     *   Ability = two rolled dice,
+     *   Endurance = two rolled dice.
+     */
     public Monster(){
         isDead = false;
         Random rand = new Random();
@@ -18,9 +24,7 @@ public class Monster extends Cell {
 
     @Override
     public void reveal(){
-
         this.setStyle("-fx-background-color: #b92626; -fx-border-color: black; -fx-background-image: url(" + pathToTexture + ");");
-
     }
 
     public int getAbility() {

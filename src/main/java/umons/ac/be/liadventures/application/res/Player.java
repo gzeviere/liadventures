@@ -2,11 +2,9 @@ package umons.ac.be.liadventures.application.res;
 
 import java.util.Random;
 
-//extends cell ?????
 public class Player {
      //private final String pathToTexture = "src/main/resources/textures/sprites/player.png"; unused
 
-     //made static because only 1 player at a time
      private final int ability;
      private int endurance;
      private int luck;
@@ -15,6 +13,13 @@ public class Player {
 
      private int posX, posY;
 
+     /**
+      * Generates a new player and sets randoms stats for it matching the probability of dice rolls :
+      *   Ability = 6 + one rolled die,
+      *   Endurance = 12 + two rolled dice,
+      *   Luck = 6 + one rolled die,
+      *   Bag capacity = 6 + two rolled dice.
+      */
      public Player(){
           Random rand = new Random();
 
@@ -45,7 +50,7 @@ public class Player {
      }
 
      /**
-      * Needs to be called when the player enters a room with a monster.
+      * Recursive function that needs to be called when the player enters a room with a monster.
       * Player's and monster's endurance will be updated and one will be 0, handle both scenarios.
       *
       * @param monster the monster the player is fighting
@@ -72,6 +77,8 @@ public class Player {
      }
 
      /**
+      * Needs to be called when the player enters a room with a trap.
+      * Player's luck or endurance will be updated.
       *
       * @return true if the player avoids the trap (and lose 1 luck),
       * false if the player falls in the trap (and lose 2 endurance)

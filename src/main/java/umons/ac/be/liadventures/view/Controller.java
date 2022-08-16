@@ -16,7 +16,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedList;
 
+
+/**
+ * Singleton class used to control the main stage (window) and create its different scenes.
+ * Made singleton class to be able to use the controller and its functions from anywhere in the project.
+ */
 public class Controller {
     private static Controller singletonController;
 
@@ -29,21 +35,24 @@ public class Controller {
     //layouts
     private AnchorPane menuLayout;
     private GridPane gameLayout;
-    //private AnchorPane optionsLayout;
     private GridPane gamePane;
+    //private AnchorPane optionsLayout; cancelled
 
     //scenes
     private Scene mainMenu, gameScene, gameSetupScene, pauseMenu;
-    //private Scene optionsScene;
+    //private Scene optionsScene; cancelled
 
-
-    private final ToggleGroup group = new ToggleGroup();
+    private final ToggleGroup difficultyGroup = new ToggleGroup();
     private Background gameBackground;
-    Background labelBackground;
+    private final Background labelBackground = new Background(new BackgroundFill(Color.rgb(190, 190, 190, 0.95), CornerRadii.EMPTY, Insets.EMPTY));
 
     //labels
     private Label ability, endurance, luck, bagCapacity;
     private GridPane movementButtons;
+
+    /**
+     * The logs area acts like a console, important information for the game will be displayed here
+     */
     private TextArea logsArea;
 
     //temp
@@ -60,26 +69,26 @@ public class Controller {
     private Controller() {
 
         window = new Stage();
-
-        //modify if enough time
         window.setResizable(false);
-
         window.setTitle("Liadventures");
-        try {
-            window.getIcons().add(new Image(new FileInputStream("src/main/resources/textures/menus/icon.png")));
-        } catch (FileNotFoundException e) {
-            //no icon no problem
-        }
 
+        setAppIcon();
         setBackground();
         createMainMenuScene();
 
-        menuLayout.setBackground(gameBackground);
         window.setScene(mainMenu);
     }
 
     public Stage getWindow() {
         return window;
+    }
+
+    private void setAppIcon(){
+        try {
+            window.getIcons().add(new Image(new FileInputStream("src/main/resources/textures/menus/icon.png")));
+        } catch (FileNotFoundException e) {
+            //no icon no problem
+        }
     }
 
     private void createMainMenuScene() {
@@ -123,7 +132,7 @@ public class Controller {
 
         //buttons
         MyButton resumeButton = new MyButton("Resume");
-        MyButton optionsButton = new MyButton("Options");
+        //MyButton optionsButton = new MyButton("Options");
         MyButton exitButton = new MyButton("Leave Game without saving");
         MyButton quitGame = new MyButton("Exit to desktop");
         Label pauseLabel = new Label("GAME PAUSED");
@@ -135,7 +144,7 @@ public class Controller {
         buttonBox.setLayoutX(WIDTH / 2.0 - 100);
         buttonBox.setLayoutY(100);
 
-        buttonBox.getChildren().addAll(pauseLabel, resumeButton, optionsButton, exitButton, quitGame);
+        buttonBox.getChildren().addAll(pauseLabel, resumeButton, exitButton, quitGame);
         pauseMenuLayout.getChildren().add(buttonBox);
 
         resumeButton.setOnAction(event -> window.setScene(gameScene));
@@ -154,31 +163,39 @@ public class Controller {
     }
 
     private void createGameSetupScene() {
+
         VBox gameSetupLayout = new VBox();
 
         VBox difficultySelector = new VBox();
         Label difficultySelectorLabel = new Label("Select a difficulty");
-        //difficultySelectorLabel.setBackground(labelBackground);
+        difficultySelectorLabel.setFont(Font.font(20));
+        difficultySelectorLabel.setBackground(labelBackground);
+
 
         RadioButton easy = new RadioButton("Easy");
-        easy.setToggleGroup(group);
+        easy.setToggleGroup(difficultyGroup);
+        easy.setBackground(labelBackground);
 
         RadioButton normal = new RadioButton("Normal");
-        normal.setToggleGroup(group);
+        normal.setToggleGroup(difficultyGroup);
+        normal.setBackground(labelBackground);
         normal.setSelected(true);
 
         RadioButton hard = new RadioButton("Hard");
-        hard.setToggleGroup(group);
+        hard.setToggleGroup(difficultyGroup);
+        hard.setBackground(labelBackground);
 
         RadioButton extreme = new RadioButton("EXTREME");
-        extreme.setToggleGroup(group);
+        extreme.setToggleGroup(difficultyGroup);
+        extreme.setBackground(labelBackground);
 
         difficultySelector.getChildren().addAll(difficultySelectorLabel, easy, normal, hard, extreme);
-        difficultySelector.setBackground(labelBackground);
 
         HBox sizeSelector = new HBox();
         TextField sizeField = new TextField("5");
         Label sizeLabel = new Label("Select dungeon size n x n (enter a number between 4 and 9)");
+        sizeLabel.setBackground(labelBackground);
+        sizeLabel.setFont(Font.font(13));
         sizeSelector.setSpacing(10);
         sizeSelector.getChildren().addAll(sizeLabel, sizeField);
 
@@ -190,7 +207,7 @@ public class Controller {
         gameSetupLayout.setPadding(new Insets(50));
 
         playButton2.setOnAction(event -> {
-            RadioButton diffButton = (RadioButton) group.getSelectedToggle();
+            RadioButton diffButton = (RadioButton) difficultyGroup.getSelectedToggle();
             Difficulty difficulty = Difficulty.getFromString(diffButton.getText().toUpperCase());
             int size;
 
@@ -204,7 +221,7 @@ public class Controller {
                 return;
 
             dungeon = new Dungeon(size, difficulty);
-            lia = dungeon.getLia();
+            lia = dungeon.getPlayer();
 
             createGameScene();
             createPauseMenuScene();
@@ -227,7 +244,6 @@ public class Controller {
         gameLayout.setVgap(15);
 
         //statistics
-        labelBackground = new Background(new BackgroundFill(Color.rgb(190, 190, 190, 0.95), CornerRadii.EMPTY, Insets.EMPTY));
 
         ability = new Label("Ability : " + lia.getAbility());
         ability.setPadding(new Insets(5));
@@ -316,15 +332,20 @@ public class Controller {
             updateLabels();
 
         });
-        dungeon.startGame();
+        dungeon.setPlayerTexture();
     }
 
+    /**
+     * Creates and shows the final scene of a game finished by an escape of the dungeon
+     */
     public void createEndScene(){
         AnchorPane endLayout = new AnchorPane();
 
         //buttons
         MyButton exitButton = new MyButton("Exit to main menu");
         MyButton quitApp = new MyButton("Exit to desktop");
+
+
         Label endLabel = new Label("You escaped !");
         endLabel.setBackground(labelBackground);
         endLabel.setFont(Font.font(25));
@@ -348,11 +369,16 @@ public class Controller {
         });
 
 
+
+
         endLayout.setBackground(gameBackground);
 
         window.setScene(endScene);
     }
 
+    /**
+     * Creates and shows the final scene of a game finished by a game over
+     */
     public void gameOver(){
         GridPane endLayout = new GridPane();
 
@@ -394,10 +420,18 @@ public class Controller {
         window.setScene(endScene);
     }
 
+    /**
+     * Shows a new line in the logsArea
+     *
+     * @param log new text line
+     */
     public void newLog(String log){
         logsArea.setText(logsArea.getText() + log + "\n");
     }
 
+    /**
+     * Refreshes the statistics labels of the player
+     */
     private void updateLabels(){
         ability.setText("Ability : " + lia.getAbility());
         endurance.setText("Endurance : " + lia.getEndurance());
@@ -406,13 +440,18 @@ public class Controller {
 
     }
 
+    /**
+     * Modifies the layout of the game scene to show the looting phase of the game. Also gives the possibility to cheat the looting phase by clicking the "show solution" button
+     */
     public void createLootingScene(){
         gameLayout.getChildren().remove(movementButtons);
         gameLayout.getChildren().remove(dungeon.getGamePane());
 
         MyButton leaveButton = new MyButton("Leave");
+        MyButton showSolution = new MyButton("Show Solution");
 
         gameLayout.add(leaveButton, 0, 2);
+        gameLayout.add(showSolution, 0, 3);
 
         FlowPane lootingPane = new FlowPane();
         CheckBox temp;
@@ -424,6 +463,23 @@ public class Controller {
             lootingPane.getChildren().add(temp);
         }
 
+        lootingPane.setOnMouseEntered(event -> {
+            try {
+                int[] results = calculateOutcome(lootingPane);
+                leaveButton.setText("Leave (" + results[0] + " crowns)");
+            }catch (IOException e){
+                leaveButton.setText("Bag too heavy !");
+            }
+        });
+        lootingPane.setOnMouseExited(event -> {
+            try {
+                int[] results = calculateOutcome(lootingPane);
+                leaveButton.setText("Leave (" + results[0] + " crowns)");
+            }catch (IOException e){
+                leaveButton.setText("Bag too heavy !");
+            }
+        });
+
         lootingPane.setBackground(labelBackground);
 
         gameLayout.add(lootingPane,1,0);
@@ -432,13 +488,34 @@ public class Controller {
             int[] results;
             try{
                 results = calculateOutcome(lootingPane);
-                newLog("The total value of your looting is : " + results[0] + " crowns");
-                System.out.println("tot val : " + results[0] + "  ||  tot weight : " + results[1]);
+                newLog("The total value of your bag is : " + results[0] + " crowns");
                 createEndScene();
             }catch (IOException e){
                 newLog(e.getMessage());
             }
         });
+
+        showSolution.setOnAction(event -> {
+            newLog("A possible solution could be to take the following items : ");
+
+            LinkedList<TreasureRoom.Element> bestOrder = dungeon.getTreasureRoom().bestElementOrder();
+
+            int bagCapacity1 = lia.getBagCapacity();
+
+            while(bestOrder.size() > 0 && bagCapacity1 > 0){
+
+                TreasureRoom.Element current = bestOrder.remove();
+
+                if(current.getSizeInBag() < bagCapacity1){
+
+                    newLog("  - " + current.getDescription() + " which is worth " + current.getValue() + " crowns and weights " + current.getSizeInBag() + " ounces.");
+                    bagCapacity1 -= current.getSizeInBag();
+
+                }
+            }
+        });
+
+
     }
 
     /**Function used to determinate what is the total value and weight of the selected treasures in the treasure room.
@@ -475,7 +552,6 @@ public class Controller {
         assert is != null;
         Image backgroundImage = new Image(is, WIDTH, HEIGHT, false, true); //require non null
         gameBackground = new Background(new BackgroundImage(backgroundImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, null));
-
     }
 
 }
