@@ -54,7 +54,7 @@ public class TreasureRoom extends Cell{
             Element highestElement = null;
 
             for(Element element : elementsCopy){
-                ratio = element.getValue()/element.getSizeInBag();
+                ratio = ((float)element.getValue()) / ((float)element.getSizeInBag());
                 if(ratio >= highestRatio){
                     highestRatio = ratio;
                     highestElement = element;

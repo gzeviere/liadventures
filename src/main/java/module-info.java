@@ -1,6 +1,6 @@
 module umons.ac.be.liadventures {
     requires javafx.controls;
-    requires javafx.fxml;
+    requires javafx.base;
 
 
     exports umons.ac.be.liadventures.application;

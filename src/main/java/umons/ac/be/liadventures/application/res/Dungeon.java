@@ -1,21 +1,17 @@
 package umons.ac.be.liadventures.application.res;
 
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 import umons.ac.be.liadventures.view.Controller;
 
 import java.util.Random;
 
 public class Dungeon {
 
-    public Cell[][] data;
+    public final Cell[][] data;
     private final TreasureRoom treasureRoom;
     private final GridPane gamePane;
-    private Pane lootingPane;
-    private final Stage window;
 
-    Controller controller;
+    final Controller controller;
 
     //player in the dungeon
     private final Player lia;
@@ -29,7 +25,6 @@ public class Dungeon {
         treasureRoom = new TreasureRoom();
 
         controller = Controller.getInstance();
-        window = controller.getWindow();
 
         fill(dif);
     }
@@ -55,7 +50,7 @@ public class Dungeon {
         }
     }
 
-    public boolean move(Direction dir) {
+    public void move(Direction dir) {
         int lastX = lia.getPosX();
         int lastY = lia.getPosY();
 
@@ -87,9 +82,7 @@ public class Dungeon {
             if(! interactCurrentCell())
                 playerDied();
 
-            return false;
         }
-        return false;
     }
 
     private void setPlayerTexture(int x, int y) {
@@ -115,9 +108,9 @@ public class Dungeon {
     }
 
     public void revealAll(){
-        for(int i = 0; i < data.length; i++){
-            for(int j = 0; j < data[0].length; j++){
-                data[i][j].reveal();
+        for (Cell[] datum : data) {
+            for (int j = 0; j < data[0].length; j++) {
+                datum[j].reveal();
             }
         }
         int x = lia.getPosX();
@@ -129,20 +122,8 @@ public class Dungeon {
         data[0][0].setStyle(" -fx-background-color : white; -fx-border-color: black; -fx-background-image : url(file:src/main/resources/textures/sprites/player.png);");
     }
 
-    /**
-     * Initiate the game loop, exploration phase of the game
-     *
-     * @return true if the player reached the treasure room, false if the player's endurance reached 0.
-     */
-    private boolean exploration(){
-
-        return false;
-    }
-
     public void looting(){
         controller.newLog("You entered the treasure room ! You could profit at least " + treasureRoom.bestPossibleOutcome(lia.getBagCapacity()));
-        lootingPane = new Pane();
-
         controller.createLootingScene();
     }
 
@@ -156,6 +137,8 @@ public class Dungeon {
 
         switch(data[liaPosX][liaPosY].getClass().getSimpleName()){
             case "Monster":
+                if(((Monster) data[liaPosX][liaPosY]).isDead)
+                    break;
                 int enduranceBeforeFight = lia.getEndurance();
                 lia.fightMonster((Monster) data[liaPosX][liaPosY]);
                 if(lia.getEndurance() < 1) {
@@ -172,6 +155,7 @@ public class Dungeon {
                         return false;
                     }
                     controller.newLog("Ouch ! You fell into a trap and lost 2 endurance");
+                    break;
                 }
                 controller.newLog("Woosh ! You saw a trap before it triggered and avoided it ! You lose 1 luck");
                 break;

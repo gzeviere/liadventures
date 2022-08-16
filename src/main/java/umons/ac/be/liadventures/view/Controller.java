@@ -29,11 +29,13 @@ public class Controller {
     //layouts
     private AnchorPane menuLayout;
     private GridPane gameLayout;
-    private AnchorPane optionsLayout;
+    //private AnchorPane optionsLayout;
     private GridPane gamePane;
 
     //scenes
-    private Scene mainMenu, gameScene, gameSetupScene, pauseMenu, optionsScene;
+    private Scene mainMenu, gameScene, gameSetupScene, pauseMenu;
+    //private Scene optionsScene;
+
 
     private final ToggleGroup group = new ToggleGroup();
     private Background gameBackground;
@@ -71,22 +73,13 @@ public class Controller {
 
         setBackground();
         createMainMenuScene();
-        setupKeyListeners();
 
         menuLayout.setBackground(gameBackground);
         window.setScene(mainMenu);
     }
 
-    public TextArea getLogsArea() {
-        return logsArea;
-    }
-
     public Stage getWindow() {
         return window;
-    }
-
-    private void setupKeyListeners() {
-
     }
 
     private void createMainMenuScene() {
@@ -439,6 +432,7 @@ public class Controller {
             int[] results;
             try{
                 results = calculateOutcome(lootingPane);
+                newLog("The total value of your looting is : " + results[0] + " crowns");
                 System.out.println("tot val : " + results[0] + "  ||  tot weight : " + results[1]);
                 createEndScene();
             }catch (IOException e){

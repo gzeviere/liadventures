@@ -3,12 +3,10 @@ package umons.ac.be.liadventures.application;
 import javafx.stage.Stage;
 import umons.ac.be.liadventures.view.Controller;
 
-import java.io.IOException;
-
 public class Application extends javafx.application.Application {
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) {
 
         try{
             Controller controller = Controller.getInstance();

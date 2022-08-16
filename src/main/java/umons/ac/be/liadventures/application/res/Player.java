@@ -1,15 +1,17 @@
 package umons.ac.be.liadventures.application.res;
 
-import javafx.scene.control.Button;
-
 import java.util.Random;
 
 //extends cell ?????
 public class Player {
-     private final String pathToTexture = "src/main/resources/textures/sprites/player.png";
+     //private final String pathToTexture = "src/main/resources/textures/sprites/player.png"; unused
 
      //made static because only 1 player at a time
-     private int ability, endurance, luck, bagCapacity;
+     private final int ability;
+     private int endurance;
+     private int luck;
+     private final int bagCapacity;
+
 
      private int posX, posY;
 
@@ -50,8 +52,6 @@ public class Player {
       * @return always true
       */
      public boolean fightMonster(Monster monster){
-          if(monster.getEndurance() < 1)
-               return true;
           Random rand = new Random();
 
           //jeter 2 dés pour lia et le monstre
@@ -63,9 +63,11 @@ public class Player {
           else if (monsterCombatScore < liaCombatScore)
                monster.setEndurance(monster.getEndurance() - 2);
 
-          if(monster.getEndurance() <= 0 || endurance <= 0) //if someone dead return true
+          if(monster.getEndurance() <= 0 || endurance <= 0) { //if someone dead return true
+               if (monster.getEndurance() < 1)
+                    monster.isDead = true;
                return true;
-
+          }
           return fightMonster(monster);
      }
 

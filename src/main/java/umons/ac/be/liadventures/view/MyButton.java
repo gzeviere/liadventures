@@ -1,12 +1,7 @@
 package umons.ac.be.liadventures.view;
 
-import javafx.event.EventHandler;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-
-import java.io.FileInputStream;
-import java.io.InputStream;
 
 public class MyButton extends javafx.scene.control.Button {
 

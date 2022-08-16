@@ -5,10 +5,12 @@ import java.util.Random;
 public class Monster extends Cell {
     private final String pathToTexture = "file:src/main/resources/textures/sprites/monster.png";
 
-    private int ability;
+    private final int ability;
     private int endurance;
+    public boolean isDead;
 
     public Monster(){
+        isDead = false;
         Random rand = new Random();
         this.ability = 2 + rand.nextInt(11); //2 < ability < 12
         this.endurance = 2 + rand.nextInt(11); //2 < endurance < 12
@@ -27,10 +29,6 @@ public class Monster extends Cell {
 
     public int getEndurance() {
         return endurance;
-    }
-
-    public void setAbility(int ability) {
-        this.ability = ability;
     }
 
     public void setEndurance(int endurance) {
